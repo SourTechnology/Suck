@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10110f">
+  <title>Suck — Math Helper</title>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10110f;
+      --panel: #191b17;
+      --lime: #d9ff70;
+      --mint: #8ef0c2;
+      --white: #f7f8f2;
+      --muted: #a4a79b;
+      --line: rgba(255,255,255,.12);
+      --danger: #ff8b8b;
+    }
+
+    * { box-sizing: border-box }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      background:
+        radial-gradient(ellipse at 85% 0%, #8ef0c214, transparent 30rem),
+        var(--bg);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+
+    button, input { font: inherit }
+
+    .app {
+      width: min(100%, 760px);
+      padding: clamp(20px, 5vw, 38px);
+      border: 1px solid var(--line);
+      border-radius: 23px;
+      background: #191b17ed;
+      box-shadow: 0 25px 90px #0006;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 13px;
+      color: #171811;
+      background: var(--lime);
+      font-size: 1.3rem;
+      font-weight: 950;
+    }
+
+    .brand-name {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: -.05em;
+    }
+
+    .brand-name span { color: var(--lime) }
+
+    .tagline {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    h1 {
+      margin: 32px 0 8px;
+      font-size: clamp(2rem, 7vw, 3.2rem);
+      letter-spacing: -.07em;
+    }
+
+    .intro {
+      margin: 0 0 25px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .calculator {
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: #ffffff04;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 9px;
+      font-size: .8rem;
+      font-weight: 750;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 9px;
+    }
+
+    #expression {
+      width: 100%;
+      min-width: 0;
+      min-height: 50px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      outline: none;
+      color: var(--white);
+      background: #10110f;
+      font-size: 1rem;
+    }
+
+    #expression:focus { border-color: var(--lime) }
+
+    .solve-button {
+      flex: 0 0 auto;
+      min-width: 95px;
+      border: 0;
+      border-radius: 10px;
+      color: #171811;
+      background: var(--lime);
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .solve-button:hover { filter: brightness(1.08) }
+
+    .hint {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: .72rem;
+      line-height: 1.5;
+    }
+
+    .result {
+      min-height: 84px;
+      margin-top: 15px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #10110f;
+    }
+
+    .result-label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: .7rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+
+    #answer {
+      overflow-wrap: anywhere;
+      font-size: 1.55rem;
+      font-weight: 850;
+      letter-spacing: -.04em;
+    }
+
+    #answer.error {
+      color: var(--danger);
+      font-size: .95rem;
+      letter-spacing: 0;
+    }
+
+    .examples { margin-top: 22px }
+
+    .examples h2 {
+      margin: 0 0 10px;
+      font-size: .9rem;
+    }
+
+    .example-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .example {
+      padding: 8px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: transparent;
+      cursor: pointer;
+      font-size: .75rem;
+    }
+
+    .example:hover {
+      border-color: var(--lime);
+      color: var(--lime);
+    }
+
+    .supported {
+      margin: 22px 0 0;
+      padding-top: 17px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: .72rem;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 13px }
+      .input-row { flex-direction: column }
+      .solve-button { min-height: 46px }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="app">
+    <div class="brand">
+      <div class="brand-icon" aria-hidden="true">∑</div>
+      <div>
+        <p class="brand-name">Suck <span>Math Helper</span></p>
+        <p class="tagline">Math help, without the fuss.</p>
+      </div>
+    </div>
+
+    <h1>What do you need to solve?</h1>
+    <p class="intro">Enter an arithmetic expression and get an answer instantly.</p>
+
+    <section class="calculator" aria-label="Math calculator">
+      <label for="expression">Your math problem</label>
+      <div class="input-row">
+        <input
+          id="expression"
+          type="text"
+          inputmode="decimal"
+          placeholder="Try: (12 + 8) × 3"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button id="solveButton" class="solve-button" type="button">Solve</button>
+      </div>
+      <p class="hint">Use +, −, ×, ÷, parentheses, decimals, and powers (^).</p>
+
+      <div class="result" aria-live="polite">
+        <span class="result-label">Answer</span>
+        <div id="answer">Your answer will appear here.</div>
+      </div>
+    </section>
+
+    <section class="examples">
+      <h2>Try an example</h2>
+      <div class="example-list">
+        <button class="example" type="button" data-expression="24 / 6 + 3">24 ÷ 6 + 3</button>
+        <button class="example" type="button" data-expression="(12 + 8) * 3">(12 + 8) × 3</button>
+        <button class="example" type="button" data-expression="2 ^ 8">2⁸</button>
+        <button class="example" type="button" data-expression="15% of 80">15% of 80</button>
+        <button class="example" type="button" data-expression="sqrt(144)">√144</button>
+      </div>
+    </section>
+
+    <p class="supported">
+      Supports basic arithmetic, percentages (for example, <code>15% of 80</code>),
+      powers using <code>^</code>, and <code>sqrt(number)</code>.
+    </p>
+  </main>
+
+  <script>
+    const expressionInput = document.getElementById("expression");
+    const answerElement = document.getElementById("answer");
+    const solveButton = document.getElementById("solveButton");
+
+    // A small parser evaluates arithmetic without using eval().
+    function tokenize(input) {
+      const tokens = [];
+      let position = 0;
+
+      while (position < input.length) {
+        const remaining = input.slice(position);
+
+        if (/^\s+/.test(remaining)) {
+          position += remaining.match(/^\s+/)[0].length;
+          continue;
+        }
+
+        const number = remaining.match(/^(?:\d+\.?\d*|\.\d+)(?:e[+-]?\d+)?/i);
+        if (number) {
+          tokens.push({ type: "number", value: Number(number[0]) });
+          position += number[0].length;
+          continue;
+        }
+
+        const word = remaining.match(/^[a-z]+/i);
+        if (word) {
+          tokens.push({ type: "word", value: word[0].toLowerCase() });
+          position += word[0].length;
+          continue;
+        }
+
+        const character = input[position];
+        if ("+-*/^()%".includes(character)) {
+          tokens.push({ type: character, value: character });
+          position++;
+          continue;
+        }
+
+        throw new Error(`I don't recognize “${character}”.`);
+      }
+
+      return tokens;
+    }
+
+    function calculate(input) {
+      let source = input
+        .replaceAll("×", "*")
+        .replaceAll("÷", "/")
+        .replaceAll("−", "-")
+        .replaceAll(",", "");
+
+      if (!source.trim()) throw new Error("Enter a math problem first.");
+
+      // Convert “15% of 80” into “15% * 80”.
+      source = source.replace(/(\d+(?:\.\d+)?)\s*%\s*of\s*/gi, "$1% * ");
+
+      const tokens = tokenize(source);
+      let index = 0;
+
+      function peek() {
+        return tokens[index];
+      }
+
+      function match(type) {
+        if (peek()?.type === type) {
+          index++;
+          return true;
+        }
+        return false;
+      }
+
+      function expect(type) {
+        if (!match(type)) throw new Error("Check your parentheses and operators.");
+      }
+
+      function parseExpression() {
+        return parseAddSubtract();
+      }
+
+      function parseAddSubtract() {
+        let value = parseMultiplyDivide();
+
+        while (peek()?.type === "+" || peek()?.type === "-") {
+          const operator = tokens[index++].type;
+          const right = parseMultiplyDivide();
+          value = operator === "+" ? value + right : value - right;
+        }
+
+        return value;
+      }
+
+      function parseMultiplyDivide() {
+        let value = parseUnary();
+
+        while (peek()?.type === "*" || peek()?.type === "/") {
+          const operator = tokens[index++].type;
+          const right = parseUnary();
+
+          if (operator === "/" && right === 0) {
+            throw new Error("You can’t divide by zero.");
+          }
+
+          value = operator === "*" ? value * right : value / right;
+        }
+
+        return value;
+      }
+
+      function parseUnary() {
+        if (match("+")) return parseUnary();
+        if (match("-")) return -parseUnary();
+        return parsePower();
+      }
+
+      function parsePower() {
+        let value = parsePostfix();
+
+        if (match("^")) {
+          value = Math.pow(value, parseUnary());
+        }
+
+        return value;
+      }
+
+      function parsePostfix() {
+        let value = parsePrimary();
+
+        while (match("%")) {
+          value /= 100;
+        }
+
+        return value;
+      }
+
+      function parsePrimary() {
+        const token = peek();
+
+        if (!token) throw new Error("Your expression looks incomplete.");
+
+        if (match("number")) return token.value;
+
+        if (token.type === "word") {
+          index++;
+
+          if (token.value === "sqrt") {
+            expect("(");
+            const value = parseExpression();
+            expect(")");
+
+            if (value < 0) throw new Error("Square root needs a non-negative number.");
+            return Math.sqrt(value);
+          }
+
+          throw new Error(`“${token.value}” isn’t a supported function.`);
+        }
+
+        if (match("(")) {
+          const value = parseExpression();
+          expect(")");
+          return value;
+        }
+
+        throw new Error("Check the expression and try again.");
+      }
+
+      const result = parseExpression();
+
+      if (index < tokens.length) {
+        throw new Error("Check the expression and try again.");
+      }
+
+      if (!Number.isFinite(result)) {
+        throw new Error("That calculation doesn’t have a finite answer.");
+      }
+
+      return result;
+    }
+
+    function solve() {
+      answerElement.classList.remove("error");
+
+      try {
+        const result = calculate(expressionInput.value);
+        answerElement.textContent = Number(result.toPrecision(12)).toLocaleString();
+      } catch (error) {
+        answerElement.textContent = error.message || "Couldn’t solve that. Check your expression.";
+        answerElement.classList.add("error");
+      }
+    }
+
+    solveButton.addEventListener("click", solve);
+
+    expressionInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") solve();
+    });
+
+    document.querySelectorAll(".example").forEach((button) => {
+      button.addEventListener("click", () => {
+        expressionInput.value = button.dataset.expression;
+        solve();
+        expressionInput.focus();
+      });
+    });
+  </script>
+</body>
+</html>
